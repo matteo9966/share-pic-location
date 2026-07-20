@@ -337,6 +337,23 @@ const getPresignedUrl = async (key: string, idToken: string): Promise<string> =>
   return s3Service.getPresignedUrl(key, credentials);
 };
 
+const getMultiplePresignedUrls = async (
+  keys: string[],
+  idToken: string,
+): Promise<string[]> => {
+  const urlPromises = keys.map(key =>
+    getPresignedUrl(key, idToken).catch(err => {
+      console.error(`Failed to fetch presigned URL for ${key}:`, err);
+      return null;
+    }),
+  );
+
+  const urls = await Promise.all(urlPromises);
+
+  // Filter out any failed requests (null values)
+  return urls.filter((url): url is string => url !== null);
+};
+
   export function createKeyForPrivateFolder(fileName: string, userId: string): string {
     return `private/${userId}/${fileName}`;
   }
@@ -361,6 +378,7 @@ export {
   getPrivateS3Files,
   getPublicS3Files,
   getPresignedUrl,
+  getMultiplePresignedUrls,
   CognitoIdentityHelper,
   S3FileService,
   type IAMCredentials,

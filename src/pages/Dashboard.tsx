@@ -2,19 +2,22 @@ import { useAuth } from "../providers/AuthProvider";
 import User from "../components/User";
 import { ImageUploader } from "../components/features/files";
 import { getPrivateS3Files } from "../utils/aws-utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { PresignedImageGrid } from "../components/ui";
 
 function Dashboard() {
   const { user, isAuthenticated } = useAuth();
-
+  const [privateFiles, setPrivateFiles] = useState<string[]>([]);
   useEffect(() => {
     if (isAuthenticated && user?.id_token) {
       // Fetch private files from S3 
       getPrivateS3Files(user.id_token)
         .then((files) => {
+          setPrivateFiles(files);
           console.log("Private files:", files);
         })
         .catch((error) => {
+
           console.error("Error fetching private files:", error);
         });
     }
@@ -34,7 +37,6 @@ function Dashboard() {
       <User user={user} />
       </div>
       <section>
-        <h3>Upload your image</h3>
         <div>
           <ImageUploader
             idToken={user?.id_token || ""}
@@ -44,6 +46,16 @@ function Dashboard() {
             onUploadError={(error) => {
               console.error(`Upload error: ${error.message}`);
             }}
+          />
+        </div>
+        <div className="mt-6">
+          <PresignedImageGrid
+           fileKeys={privateFiles}
+           idToken={user?.id_token || ""}
+           onError={(error) => {
+             console.error("Error loading images:", error);
+           }    
+          }
           />
         </div>
       </section>
