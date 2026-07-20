@@ -1,6 +1,6 @@
 import { getId } from '../utils/aws-utils';
 import { useEffect } from 'react';
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "../providers/AuthProvider";
 
 function Auth() {
   const auth = useAuth();

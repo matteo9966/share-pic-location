@@ -1,4 +1,4 @@
-import { useAuth } from 'react-oidc-context';
+import { useAuth } from '../providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../config/routes';
 import { Navigation } from './Navigation';
@@ -26,7 +26,7 @@ export function Header() {
     return (
       <header className="sticky top-0 z-100 bg-blue-900 text-white shadow-md">
         <div className="mx-auto max-w-5xl px-4 py-4 flex flex-col gap-4">
-          <h1 className="text-2xl">Share Pic Location</h1>
+          <h1 className="text-2xl">Cats around the world</h1>
           <div className="flex items-center gap-4">
             <p className="text-sm text-gray-300">Loading...</p>
           </div>
@@ -43,7 +43,7 @@ export function Header() {
             onClick={() => navigate(ROUTES.HOME)} 
             className="m-0 text-2xl cursor-pointer transition-opacity duration-300 hover:opacity-80"
           >
-            Share Pic Location
+            Cats around the world
           </h1>
           <nav className="flex items-center gap-4">
             {isAuthenticated ? (

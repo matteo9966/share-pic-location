@@ -1,4 +1,4 @@
-import { useAuth } from 'react-oidc-context';
+import { useAuth } from '../providers/AuthProvider';
 import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '../config/routes';
 

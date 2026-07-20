@@ -17,3 +17,44 @@ VITE_AWS_S3_BUCKET_NAME="....."
 - lets create an identity pool and associate it to the user pool
 
 I have now created the identity pool
+
+
+
+USER POLICIES:
+
+User policy to access only his s3 bucket folder
+
+This policy allows users only to interact with their bucket:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowUserToListTheirOwnFolder",
+      "Effect": "Allow",
+      "Action": ["s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::your-bucket-name"],
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": ["private/${cognito-identity.amazonaws.com:sub}/*"]
+        }
+      }
+    },
+    {
+      "Sid": "AllowUserReadWriteAccessToTheirOwnFolder",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::your-bucket-name/private/${cognito-identity.amazonaws.com:sub}/*"
+      ]
+    }
+  ]
+}
+```
+
+This ${cognito-identity.amazonaws.com:sub} is the unique identity of the current logged in user
