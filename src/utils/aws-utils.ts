@@ -150,6 +150,7 @@ class S3FileService {
     return new S3Client({
       region: this.awsRegion,
       credentials,
+      requestChecksumCalculation:'WHEN_REQUIRED'
     });
   }
 

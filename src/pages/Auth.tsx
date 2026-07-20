@@ -9,7 +9,7 @@ function Auth() {
     const fetchIdentityId = async () => {
            if (auth.user?.id_token) {
             await getId(auth.user?.id_token);
-            window.location.href = "/";
+            window.location.href = "/dashboard";
            }
         }
         if (auth.isAuthenticated) fetchIdentityId();
@@ -18,6 +18,7 @@ function Auth() {
   return (
     <div>
       <h1>Auth Page</h1>
+      here you can handle authentication logic, such as redirecting to the dashboard after successful login.
     </div>
   )
 }

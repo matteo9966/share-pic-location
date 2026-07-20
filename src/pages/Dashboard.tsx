@@ -1,5 +1,6 @@
 import { useAuth } from "../providers/AuthProvider";
 import User from "../components/User";
+import { ImageUploader } from "../components/features/files";
 
 function Dashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -14,8 +15,23 @@ function Dashboard() {
 
   return (
     <div className="flex flex-col gap-8 p-6">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <div className="w-full md:w-[50%]">
       <User user={user} />
+      </div>
+      <section>
+        <h3>Upload your image</h3>
+        <div>
+          <ImageUploader
+            idToken={user?.id_token || ""}
+            onUploadSuccess={(fileName) => {
+              console.log(`File uploaded successfully: ${fileName}`);
+            }}
+            onUploadError={(error) => {
+              console.error(`Upload error: ${error.message}`);
+            }}
+          />
+        </div>
+      </section>
     </div>
   );
 }
