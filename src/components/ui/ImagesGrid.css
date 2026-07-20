@@ -1,0 +1,50 @@
+/* Comics book style layout for desktop view */
+.images-grid {
+  display: grid;
+  gap: 0.5rem;
+  grid-auto-flow: dense;
+}
+
+/* Mobile: single column */
+@media (max-width: 640px) {
+  .images-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .images-grid-item {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Tablet and up: comics book layout with fixed row heights */
+@media (min-width: 641px) {
+  .images-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-auto-rows: 250px;
+  }
+
+  .images-grid-item {
+    height: 100%;
+    width: 100%;
+  }
+
+  /* Add variety with some items spanning multiple columns */
+  .images-grid-item:nth-child(3n + 1) {
+    grid-column: span 2;
+  }
+
+  .images-grid-item:nth-child(5n + 2) {
+    grid-column: span 1;
+  }
+}
+
+/* Ensure images fill their containers properly */
+.images-grid-item {
+  overflow: hidden;
+}
+
+.images-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
