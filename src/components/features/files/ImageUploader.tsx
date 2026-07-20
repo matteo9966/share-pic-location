@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { putFileToS3 } from '../../../utils/aws-utils';
+import {  uploadToPrivateFolder } from '../../../utils/aws-utils';
 
 interface ImageUploaderProps {
   idToken: string;
@@ -43,8 +43,9 @@ export const ImageUploader = ({
 
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
+    //   const privateFilename = createKeyForPrivateFolder(file.name, idToken); // Assuming idToken represents the userId
       try {
-        const success = await putFileToS3(file, file.name, idToken);
+        const success = await uploadToPrivateFolder(file, idToken);
         if (success) {
           setUploadStatuses(prev => [
             ...prev.slice(0, i),

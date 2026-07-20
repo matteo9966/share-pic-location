@@ -174,6 +174,7 @@ class S3FileService {
     return response.$metadata.httpStatusCode === 200;
   }
 
+
   async downloadFile(
     key: string,
     credentials: IAMCredentials,
@@ -261,6 +262,24 @@ class S3FileService {
     document.body.removeChild(anchor);
     window.URL.revokeObjectURL(url);
   }
+
+  // private createKeyForPrivateFolder(fileName: string, userId: string): string {
+  //   return `private/${userId}/${fileName}`;
+  // }
+
+  // async uploadToPrivateFolder(file: File, idToken: string): Promise<boolean> {
+  //   const identityId = localStorage.getItem(STORAGE_KEYS.IDENTITY_ID);
+  //   if (!identityId) {
+  //     throw new Error('Identity ID not found in local storage');
+  //   }
+  //   const privateKey = this.createKeyForPrivateFolder(file.name, identityId);
+  //   const credentials = await getIAMCreds(idToken);
+  //   return this.uploadFile(file, privateKey, credentials);
+  // }
+
+
+
+
 }
 
 // Service Instances
@@ -299,6 +318,22 @@ const getPresignedUrl = async (key: string, idToken: string): Promise<string> =>
   const credentials = await getIAMCreds(idToken);
   return s3Service.getPresignedUrl(key, credentials);
 };
+
+  export function createKeyForPrivateFolder(fileName: string, userId: string): string {
+    return `private/${userId}/${fileName}`;
+  }
+
+
+export async function uploadToPrivateFolder(file: File, idToken: string): Promise<boolean> {
+  const identityId = localStorage.getItem(STORAGE_KEYS.IDENTITY_ID);
+  if (!identityId) {
+    throw new Error('Identity ID not found in local storage');
+  }
+  const privateKey = createKeyForPrivateFolder(file.name, identityId);
+  const credentials = await getIAMCreds(idToken);
+  return s3Service.uploadFile(file, privateKey, credentials);
+}
+
 
 export {
   getId,
