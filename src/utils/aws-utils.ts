@@ -198,11 +198,11 @@ class S3FileService {
     await this.saveBlob(stream, key);
   }
 
-  async getPublicFiles(credentials: IAMCredentials): Promise<string[]> {
+  async listFiles(prefix: string, credentials: IAMCredentials): Promise<string[]> {
     const s3Client = await this.createS3Client(credentials);
     const input = {
       Bucket: this.s3BucketName,
-      Prefix: 'public/',
+      Prefix: prefix,
     };
 
     try {
@@ -215,6 +215,14 @@ class S3FileService {
       console.error('Error listing S3 files:', err);
       return [];
     }
+  }
+
+  async getPublicFiles(credentials: IAMCredentials): Promise<string[]> {
+    return this.listFiles('public/', credentials);
+  }
+
+  async getPrivateFiles(identityId: string, credentials: IAMCredentials): Promise<string[]> {
+    return this.listFiles(`private/${identityId}/`, credentials);
   }
 
   async getPresignedUrl(
@@ -263,6 +271,7 @@ class S3FileService {
     window.URL.revokeObjectURL(url);
   }
 
+
   // private createKeyForPrivateFolder(fileName: string, userId: string): string {
   //   return `private/${userId}/${fileName}`;
   // }
@@ -305,6 +314,15 @@ const getPublicS3Files = async (idToken: string): Promise<string[]> => {
   return s3Service.getPublicFiles(credentials);
 };
 
+const getPrivateS3Files = async (idToken: string): Promise<string[]> => {
+  const identityId = localStorage.getItem(STORAGE_KEYS.IDENTITY_ID);
+  if (!identityId) {
+    throw new Error('Identity ID not found in local storage');
+  }
+  const credentials = await getIAMCreds(idToken);
+  return s3Service.getPrivateFiles(identityId, credentials);
+};
+
 const putFileToS3 = async (
   file: File,
   fileName: string,
@@ -340,6 +358,7 @@ export {
   getIAMCreds,
   getFileFromS3,
   putFileToS3,
+  getPrivateS3Files,
   getPublicS3Files,
   getPresignedUrl,
   CognitoIdentityHelper,

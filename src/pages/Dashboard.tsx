@@ -1,9 +1,24 @@
 import { useAuth } from "../providers/AuthProvider";
 import User from "../components/User";
 import { ImageUploader } from "../components/features/files";
+import { getPrivateS3Files } from "../utils/aws-utils";
+import { useEffect } from "react";
 
 function Dashboard() {
   const { user, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && user?.id_token) {
+      // Fetch private files from S3 
+      getPrivateS3Files(user.id_token)
+        .then((files) => {
+          console.log("Private files:", files);
+        })
+        .catch((error) => {
+          console.error("Error fetching private files:", error);
+        });
+    }
+  }, [isAuthenticated, user]);
   
   if (!isAuthenticated) {
     return (
