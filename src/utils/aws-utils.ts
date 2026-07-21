@@ -101,7 +101,9 @@ class CognitoIdentityHelper {
   }
 
   private async getOrFetchIdentityId(idToken: string): Promise<string> {
-    const cachedId = localStorage.getItem(STORAGE_KEYS.IDENTITY_ID);
+    // if(!id)
+    const cachedId = localStorage.getItem(STORAGE_KEYS.IDENTITY_ID); // i should check if the user is authenticated, if the user is not authenticated, then i should not use the cached id, i should fetch a new id from cognito
+    
     return cachedId || this.getId(idToken);
   }
 
