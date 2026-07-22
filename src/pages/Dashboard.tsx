@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ImageCard, PresignedImageGrid } from "../components/ui";
 import Modal from "../components/ui/modal/Modal";
 import ModalActions from "../components/ui/modal/ModalActions";
+import EditPictureData from "../components/features/picture-forms/EditPictureData";
 
 function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -84,6 +85,15 @@ function Dashboard() {
           alt="Selected image"
           isGridLayout={false}
         />
+        <EditPictureData
+         initialData={{
+           s3_key:selectedImageData?.key,
+           picture_id: ""// find picture by id
+         }}
+         onSubmit={async ()=>{}} 
+        >
+
+        </EditPictureData>
 
         <ModalActions
           onConfirm={() => {
@@ -91,8 +101,8 @@ function Dashboard() {
             setIsModalOpen(false);
           }}
           onCancel={() => setIsModalOpen(false)}
-          confirmLabel="Delete"
-          isDestructive
+          confirmLabel="Conferma"
+          isDestructive={false}
         />
       </Modal>
     </>
