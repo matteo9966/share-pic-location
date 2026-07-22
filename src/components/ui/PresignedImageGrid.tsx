@@ -6,40 +6,56 @@ interface PresignedImageGridProps {
   fileKeys: string[];
   idToken: string;
   onError?: (error: Error) => void;
+  onImageClick?: (key: string,url:string) => void;
 }
 
 export const PresignedImageGrid: React.FC<PresignedImageGridProps> = ({
   fileKeys,
   idToken,
   onError,
+  onImageClick
 }) => {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageData,setImageData] = useState<{ s3_key:string,presignedUrl:string }[]>([]);
 
   useEffect(() => {
-    const fetchPresignedUrls = async () => {
+    const loadImages = async () => {
+      if (fileKeys.length === 0) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         setIsLoading(true);
         setError(null);
 
-        // Fetch all presigned URLs in parallel
-        const urlPromises = fileKeys.map(key =>
-          getPresignedUrl(key, idToken).catch(err => {
-            console.error(`Failed to fetch presigned URL for ${key}:`, err);
-            return null;
-          }),
+        // Fetch all presigned URLs in parallel with error handling
+        const urlResults = await Promise.all(
+          fileKeys.map(key =>
+            getPresignedUrl(key, idToken)
+              .then(url => ({ key, url }))
+              .catch(err => {
+                console.error(`Failed to fetch presigned URL for ${key}:`, err);
+                return { key, url: null };
+              }),
+          ),
         );
 
-        const urls = await Promise.all(urlPromises);
+        // Separate successful and failed URLs
+        const images = urlResults
+          .filter((result): result is { key: string; url: string } => result.url !== null)
+          .map(({ key, url }) => ({ s3_key: key, presignedUrl: url }));
 
-        // Filter out any failed requests (null values)
-        const validUrls = urls.filter((url): url is string => url !== null);
-        setImageUrls(validUrls);
+        const urls = images.map(img => img.presignedUrl);
 
-        // If some URLs failed, set an error
-        if (validUrls.length < fileKeys.length) {
-          const failedCount = fileKeys.length - validUrls.length;
+        setImageData(images);
+        setImageUrls(urls);
+
+        // Report partial failures as warning
+        if (images.length < fileKeys.length) {
+          const failedCount = fileKeys.length - images.length;
           const errorMsg = `Failed to load ${failedCount} image(s)`;
           setError(errorMsg);
           onError?.(new Error(errorMsg));
@@ -54,11 +70,7 @@ export const PresignedImageGrid: React.FC<PresignedImageGridProps> = ({
       }
     };
 
-    if (fileKeys.length > 0 && idToken) {
-      fetchPresignedUrls();
-    } else if (fileKeys.length === 0) {
-      setIsLoading(false);
-    }
+    loadImages();
   }, [fileKeys, idToken, onError]);
 
   if (isLoading) {
@@ -100,7 +112,13 @@ export const PresignedImageGrid: React.FC<PresignedImageGridProps> = ({
           <p className="text-yellow-700 text-sm">{error}</p>
         </div>
       )}
-      <ImagesGrid images={imageUrls} />
+      <ImagesGrid
+        onImageClick={(key) => {
+          const url = imageData.find(img => img.s3_key === key)?.presignedUrl || '';
+          onImageClick?.(key, url);
+        }}
+        imageData={imageData}
+      />
     </div>
   );
 };

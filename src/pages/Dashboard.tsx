@@ -3,11 +3,15 @@ import User from "../components/User";
 import { ImageUploader } from "../components/features/files";
 import { getPrivateS3Files } from "../utils/aws-utils";
 import { useEffect, useState } from "react";
-import { PresignedImageGrid } from "../components/ui";
+import { ImageCard, PresignedImageGrid } from "../components/ui";
+import Modal from "../components/ui/modal/Modal";
+import ModalActions from "../components/ui/modal/ModalActions";
 
 function Dashboard() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const [privateFiles, setPrivateFiles] = useState<string[]>([]);
+  const [selectedImageData, setSelectedImageData] = useState<{ key: string, url: string } | null>(null);
   useEffect(() => {
     if (isAuthenticated && user?.id_token) {
       // Fetch private files from S3 
@@ -22,7 +26,7 @@ function Dashboard() {
         });
     }
   }, [isAuthenticated, user]);
-  
+
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -32,11 +36,12 @@ function Dashboard() {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-6">
-      <div className="w-full md:w-[50%]">
-      <User user={user} />
-      </div>
-      <section>
+    <>
+      <div className="flex flex-col gap-8 p-6">
+        <div className="w-full md:w-[50%]">
+          <User user={user} />
+        </div>
+
         <div>
           <ImageUploader
             idToken={user?.id_token || ""}
@@ -50,16 +55,47 @@ function Dashboard() {
         </div>
         <div className="mt-6">
           <PresignedImageGrid
-           fileKeys={privateFiles}
-           idToken={user?.id_token || ""}
-           onError={(error) => {
-             console.error("Error loading images:", error);
-           }    
-          }
+            fileKeys={privateFiles}
+            idToken={user?.id_token || ""}
+            onError={(error) => {
+              console.error("Error loading images:", error);
+            }
+
+            }
+            onImageClick={(imageKey, imageUrl) => { 
+              setIsModalOpen(true);
+              setSelectedImageData({ key: imageKey, url: imageUrl });
+              console.log(`Image clicked: ${imageKey}`);
+            }}
           />
         </div>
-      </section>
-    </div>
+
+
+      </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Confirm Action"
+        showCloseButton
+      >
+        <ImageCard
+          src={selectedImageData?.url || ""} // Replace with the actual image URL
+          alt="Selected image"
+          isGridLayout={false}
+        />
+
+        <ModalActions
+          onConfirm={() => {
+            // Handle confirm action
+            setIsModalOpen(false);
+          }}
+          onCancel={() => setIsModalOpen(false)}
+          confirmLabel="Delete"
+          isDestructive
+        />
+      </Modal>
+    </>
   );
 }
 

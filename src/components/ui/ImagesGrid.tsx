@@ -1,15 +1,16 @@
 import ImageCard from "./ImageCard";
 import "./ImagesGrid.css";
 
-export const ImagesGrid = ({ images }: { images: string[] }) => {
+export const ImagesGrid = ({  onImageClick, imageData }: { images?: string[], onImageClick?: (key: string) => void, imageData: { s3_key: string, presignedUrl: string }[] }) => {
     return (
         <div className="images-grid">
-            {images.map((image, index) => (
+            {imageData.filter(img => !!img.presignedUrl).map((image, index) => (
                 <div key={index} className="images-grid-item">
                     <ImageCard
-                        src={image}
+                        src={image.presignedUrl}
                         alt={`Image ${index + 1}`}
                         isGridLayout={true}
+                        onClick={() => onImageClick?.(image.s3_key)}
                     />
                 </div>
             ))}
