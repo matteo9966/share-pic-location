@@ -38,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({
 
   return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 opacity-100"
+      className="fixed inset-0 z-150 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 opacity-100"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -66,7 +66,7 @@ const Modal: React.FC<ModalProps> = ({
         </div>
       </div>
     </div>,
-    document.body
+    document.querySelector('#modal-root') as HTMLElement
   );
 };
 

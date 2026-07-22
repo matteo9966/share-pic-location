@@ -24,7 +24,7 @@ export function Header() {
   // Show loading state
   if (isLoading) {
     return (
-      <header className="sticky top-0 z-100 bg-blue-900 text-white shadow-md">
+      <header className="sticky top-0 z-10 bg-blue-900 text-white shadow-md">
         <div className="mx-auto max-w-5xl px-4 py-4 flex flex-col gap-4">
           <h1 className="text-2xl">Cats around the world</h1>
           <div className="flex items-center gap-4">
